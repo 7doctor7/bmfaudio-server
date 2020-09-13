@@ -13,6 +13,7 @@ const exit = process.exit;
 
 export default class ExpressServer {
   private routes: (app: Application) => void;
+
   constructor() {
     const root = path.normalize(__dirname + '/../..');
     app.set('appPath', root + 'client');
@@ -23,7 +24,7 @@ export default class ExpressServer {
         limit: process.env.REQUEST_LIMIT || '100kb',
       })
     );
-    app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '100kb' }));
+    app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '1000000kb' }));
     app.use(cookieParser(process.env.SESSION_SECRET));
     app.use(express.static(`${root}/public`));
   }
@@ -36,9 +37,9 @@ export default class ExpressServer {
   listen(port: number): Application {
     const welcome = (p: number) => (): void =>
       l.info(
-        `up and running in ${
+        `Server up and running in ${
           process.env.NODE_ENV || 'development'
-        } @: ${os.hostname()} on port: ${p}}`
+        } mode | @HOST: ${os.hostname()} on port: ${p}}`
       );
 
     installValidator(app, this.routes)
