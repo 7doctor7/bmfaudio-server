@@ -1,6 +1,7 @@
 import L from '../../common/logger';
 import fs from 'fs';
 import s from 'shelljs';
+import archiver from 'archiver';
 
 interface FileUpload {
   fieldname: string;
@@ -40,6 +41,27 @@ export class BMFAudioService {
         L.info(`Save the file ${originalname} ERROR: `, JSON.stringify(err));
         reject({ file_name: originalname, saved: false, err });
       }
+    });
+  }
+
+  public async createZIP(): Promise<any> {
+    if (fs.existsSync('records/all_records.zip')) {
+      L.info(`Remove old ZIP`);
+      s.rm('-rf', `records/all_records.zip`);
+    }
+
+    const zip = archiver('zip', { zlib: { level: 9 }});
+    const output = fs.createWriteStream('records/all_records.zip');
+
+    return new Promise((resolve, reject) => {
+      L.info(`Create ZIP`);
+      zip
+        .directory('records', false)
+        .on('error', err => reject(err))
+        .pipe(output);
+  
+      output.on('close', () => resolve());
+      zip.finalize();
     });
   }
 

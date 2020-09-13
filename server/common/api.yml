@@ -71,13 +71,31 @@ paths:
           description: Returns files list
           content: {}
     post:
-        tags:
-          - Records
-        description: Save the file
-        responses:
-          200:
-            description: Returns done
-            content: {}
+      tags:
+        - Records
+      description: Save the file
+      responses:
+        200:
+          description: Returns done
+          content: {}
+  /records/zip:
+    get:
+      tags:
+        - Records ZIP
+      description: Fetch all files by ZIP
+      responses:
+        200:
+          description: Returns ZIP
+          content: {}
+  /records/file:
+    get:
+      tags:
+        - Singe record
+      description: Fetch a singe record
+      responses:
+        200:
+          description: Returns file
+          content: {}
 components:
   schemas:
     ExampleBody:
