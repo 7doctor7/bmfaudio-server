@@ -1,13 +1,15 @@
 import s from 'shelljs';
 import fs from 'fs';
 
-const config = require('./tsconfig.json');
-const outDir = config.compilerOptions.outDir;
+import * as config from './tsconfig.json';
+
+const dev = fs.existsSync('.env');
+const { outDir } = config.compilerOptions;
 
 s.rm('-rf', outDir);
 s.mkdir(outDir);
 
-if (fs.existsSync('.env')) {
+if (dev) {
   s.cp('.env', `${outDir}/.env`);
 }
 

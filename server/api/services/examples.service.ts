@@ -17,9 +17,9 @@ export class ExamplesService {
     return Promise.resolve(examples);
   }
 
-  byId(id: number): Promise<Example> {
+  async byId(id: number): Promise<Example> {
     L.info(`fetch example with id ${id}`);
-    return this.all().then((r) => r[id]);
+    return await this.all().then((r) => r[id]);
   }
 
   create(name: string): Promise<Example> {
@@ -28,6 +28,7 @@ export class ExamplesService {
       id: id++,
       name,
     };
+
     examples.push(example);
     return Promise.resolve(example);
   }
