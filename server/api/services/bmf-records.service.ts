@@ -1,6 +1,6 @@
 import L from '../../common/logger';
 import fs from 'fs';
-import s, { cat } from 'shelljs';
+import s from 'shelljs';
 
 interface FileUpload {
   fieldname: string;
@@ -29,7 +29,6 @@ export class BMFAudioService {
   public saveFile(file: FileUpload): Promise<FileSaved> {
     return new Promise(async (resolve, reject) => {
       await this.checkRecordsFolder();
-      console.log('file => ', file);
       const { originalname, filename } = file;
 
       try {
