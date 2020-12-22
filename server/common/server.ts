@@ -4,6 +4,7 @@ import bodyParser from 'body-parser';
 import http from 'http';
 import os from 'os';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import l from './logger';
 
 import installValidator from './openapi';
@@ -17,16 +18,17 @@ export default class ExpressServer {
   constructor() {
     const root = path.normalize(__dirname + '/../..');
     app.set('appPath', root + 'client');
-    app.use(bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' }));
+    app.use(bodyParser.json({ limit: process.env.REQUEST_LIMIT || '500kb' }));
     app.use(
       bodyParser.urlencoded({
         extended: true,
-        limit: process.env.REQUEST_LIMIT || '100kb',
+        limit: process.env.REQUEST_LIMIT || '500kb',
       })
     );
     app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '1000000kb' }));
     app.use(cookieParser(process.env.SESSION_SECRET));
     app.use(express.static(`${root}/public`));
+    app.use(cors({origin: '*'}));
   }
 
   router(routes: (app: Application) => void): ExpressServer {
@@ -35,6 +37,8 @@ export default class ExpressServer {
   }
 
   listen(port: number): Application {
+    const networkInterfaces = os.networkInterfaces();
+    console.log('networkInterfaces => ', networkInterfaces);
     const welcome = (p: number) => (): void =>
       l.info(
         `Server up and running in ${
