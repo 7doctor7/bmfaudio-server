@@ -22,14 +22,10 @@ export interface FileSaved {
 }
 
 export class BMFAudioService {
-  public async listFiles(deviceID?: string): Promise<string[]> {
-    const path = deviceID ? `records/${deviceID}` : 'records/';
-
-    console.log('deviceID => ', deviceID);
-
-    L.info('fetch all files');
-    await this.checkRecordsFolder();
-    return s.ls('-A', [path]);
+  public async listFiles(deviceID: string): Promise<string[]> {
+    L.info(`Fetch all files for device: ${deviceID}`);
+    await this.checkRecordsFolder(deviceID);
+    return s.ls('-A', [`records/${deviceID}`]);
   }
 
   public saveFile(data: { file: FileUpload; deviceID: string }): Promise<FileSaved> {
@@ -68,7 +64,7 @@ export class BMFAudioService {
         .on('error', (err) => reject(err))
         .pipe(output);
 
-      output.on('close', () => resolve());
+      output.on('close', () => resolve(true));
       zip.finalize();
     });
   }

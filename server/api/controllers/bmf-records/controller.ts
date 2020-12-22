@@ -24,7 +24,7 @@ export class BmfRecoredsController {
 
   public async listFiles(req: Request, res: Response): Promise<void> {
     const { device_id } = req.query;
-    const list = await BMFAudioService.listFiles(device_id as string);
+    const list = await BMFAudioService.listFiles(`${device_id}`);
 
     res.json([...list]);
   }
