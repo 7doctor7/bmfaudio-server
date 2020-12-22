@@ -65,6 +65,13 @@ paths:
     get:
       tags:
         - Records
+      parameters:
+        - name: device_id
+          in: query
+          description: Device ID for srorage directory
+          required: true
+          schema:
+            type: string
       description: Fetch all files
       responses:
         200:

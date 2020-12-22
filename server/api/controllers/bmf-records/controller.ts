@@ -7,9 +7,15 @@ import BMFAudioService from '../../services/bmf-records.service';
 export class BmfRecoredsController {
   public async saveFile(req: Request, res: Response): Promise<void> {
     const file = { ...req.file };
+    const { deviceID } = req.body;
+
+    if (!deviceID) {
+      res.status(404).json({ message: `Device ID isn't present!` });
+      return;
+    }
 
     try {
-      const save = await BMFAudioService.saveFile({ ...file });
+      const save = await BMFAudioService.saveFile({ file, deviceID });
       res.json({ ...save });
     } catch (err) {
       res.status(404).json({ ...err });
@@ -17,7 +23,9 @@ export class BmfRecoredsController {
   }
 
   public async listFiles(req: Request, res: Response): Promise<void> {
-    const list = await BMFAudioService.listFiles();
+    const { device_id } = req.query;
+    const list = await BMFAudioService.listFiles(device_id as string);
+
     res.json([...list]);
   }
 

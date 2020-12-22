@@ -17,11 +17,11 @@ export default class ExpressServer {
   constructor() {
     const root = path.normalize(__dirname + '/../..');
     app.set('appPath', root + 'client');
-    app.use(bodyParser.json({ limit: process.env.REQUEST_LIMIT || '100kb' }));
+    app.use(bodyParser.json({ limit: process.env.REQUEST_LIMIT || '500kb' }));
     app.use(
       bodyParser.urlencoded({
         extended: true,
-        limit: process.env.REQUEST_LIMIT || '100kb',
+        limit: process.env.REQUEST_LIMIT || '500kb',
       })
     );
     app.use(bodyParser.text({ limit: process.env.REQUEST_LIMIT || '1000000kb' }));
@@ -35,6 +35,8 @@ export default class ExpressServer {
   }
 
   listen(port: number): Application {
+    const networkInterfaces = os.networkInterfaces();
+    console.log('networkInterfaces => ', networkInterfaces);
     const welcome = (p: number) => (): void =>
       l.info(
         `Server up and running in ${

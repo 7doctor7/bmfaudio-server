@@ -16,27 +16,35 @@ interface FileUpload {
 
 export interface FileSaved {
   file_name: string;
+  saved_name: string;
   saved: boolean;
   err?: any;
 }
 
 export class BMFAudioService {
-  public async listFiles(): Promise<string[]> {
+  public async listFiles(deviceID?: string): Promise<string[]> {
+    const path = deviceID ? `records/${deviceID}` : 'records/';
+
+    console.log('deviceID => ', deviceID);
+
     L.info('fetch all files');
     await this.checkRecordsFolder();
-    return s.ls('-A', ['records/']);
+    return s.ls('-A', [path]);
   }
 
-  public saveFile(file: FileUpload): Promise<FileSaved> {
+  public saveFile(data: { file: FileUpload; deviceID: string }): Promise<FileSaved> {
     return new Promise(async (resolve, reject) => {
-      await this.checkRecordsFolder();
+      const { file, deviceID } = data;
       const { originalname, filename } = file;
+      const savedName = `${Date.now()}_${originalname}`;
+
+      await this.checkRecordsFolder(deviceID);
 
       try {
         L.info(`Save the file ${originalname}`);
-        s.cp(`records/${filename}`, `records/${Date.now()}_${originalname}`);
+        s.cp(`records/${filename}`, `records/${deviceID}/${savedName}`);
         s.rm('-rf', `records/${filename}`);
-        resolve({ file_name: originalname, saved: true });
+        resolve({ file_name: originalname, saved: true, saved_name: savedName });
       } catch (err) {
         L.info(`Save the file ${originalname} ERROR: `, JSON.stringify(err));
         reject({ file_name: originalname, saved: false, err });
@@ -50,27 +58,38 @@ export class BMFAudioService {
       s.rm('-rf', `records/all_records.zip`);
     }
 
-    const zip = archiver('zip', { zlib: { level: 9 }});
+    const zip = archiver('zip', { zlib: { level: 9 } });
     const output = fs.createWriteStream('records/all_records.zip');
 
     return new Promise((resolve, reject) => {
       L.info(`Create ZIP`);
       zip
         .directory('records', false)
-        .on('error', err => reject(err))
+        .on('error', (err) => reject(err))
         .pipe(output);
-  
+
       output.on('close', () => resolve());
       zip.finalize();
     });
   }
 
-  private async checkRecordsFolder(): Promise<boolean> {
+  private async checkRecordsFolder(deviceID?: string): Promise<boolean> {
     const exist = fs.existsSync('records');
     return new Promise((resolve) => {
       if (!exist) {
         s.mkdir('records');
+
+        if (deviceID) {
+          s.mkdir(`records/${deviceID}`);
+        }
+      } else {
+        const sub = fs.existsSync(`records/${deviceID}`);
+
+        if (!sub) {
+          s.mkdir(`records/${deviceID}`);
+        }
       }
+
       resolve(true);
     });
   }
